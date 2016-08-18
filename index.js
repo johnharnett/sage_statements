@@ -5,6 +5,18 @@ var async = require("async");
 var _ = require("underscore");
 var sales_summary = require("sales_summary").sales_summary;
 var lastSixMonths = require("sales_summary").lastSixMonths;
+var fs = require("fs");
+var moment = require("moment");
+
+
+var now_file_name = "\\\\LOCATESTORE\\Gerry\\snc\\" + moment().format("YYYY_MM_DD__HH_mm") + "_stock_news.csv";
+var top_line= "Product Code,FreeStock,Channel,"
+lastSixMonths().forEach(function(month){
+ top_line += month +",";
+})
+
+fs.writeFileSync(now_file_name, top_line + "Action\n");
+
 
 
 async.parallel( {
@@ -32,14 +44,8 @@ local_invoices: function(callback){
 }
 
 },function(err,results){
-        /*
- _.chain(results)
-               .values()
-               .map(function(content) { 
-                       console.log(content)
-               }); 
-               */
- _.each(results["stock_in_the_channel"],function(sitc_product){
+  var sorted_stock_in_the_channel = _.sortBy(results["stock_in_the_channel"],function(sitc_product){return sitc_product.sku});
+ _.each(sorted_stock_in_the_channel,function(sitc_product){
 
          var report_row = sitc_product.sku + ",";
 
@@ -58,7 +64,6 @@ local_invoices: function(callback){
                  console.log("product not in sage");
            report_row += "not found in sage,";
          }
-         //console.log(sitc_product.stock_in_the_channel);
            report_row += sitc_product.stock_in_the_channel + ",";
            var all_sales = sales_summary(results["local_invoices"],sitc_product.sku)
                    var last_sales = ""
@@ -68,6 +73,10 @@ local_invoices: function(callback){
                    });
          
          console.log(report_row);  
+         fs.appendFileSync(now_file_name ,report_row + '\n','utf-8',function(err){
+                 if (err){ fs.writeFileSync("err.file",err)}
+
+         });
  });
                  
 });
