@@ -8,20 +8,23 @@ var lastSixMonths = require("sales_summary").lastSixMonths;
 var fs = require("fs");
 var moment = require("moment");
 
+var manufacturers = ["LEN","TOSH"]
 
-var now_file_name = "\\\\LOCATESTORE\\Gerry\\snc\\" + moment().format("YYYY_MM_DD__HH_mm") + "_stock_news.csv";
+var len_file_name = "\\\\LOCATESTORE\\Gerry\\snc\\" + moment().format("YYYY_MM_DD__HH_mm") + "len_stock_news.csv";
+var tosh_file_name = "\\\\LOCATESTORE\\Gerry\\snc\\" + moment().format("YYYY_MM_DD__HH_mm") + "tosh_stock_news.csv";
 var top_line= "Product Code,FreeStock,Channel,"
 lastSixMonths().forEach(function(month){
  top_line += month +",";
 })
 
-fs.writeFileSync(now_file_name, top_line + "Action\n");
+fs.writeFileSync(len_file_name, top_line + "Action\n");
+fs.writeFileSync(tosh_file_name, top_line + "Action\n");
 
 
 
 async.parallel( {
 stock_in_the_channel: function(callback){
-        request.get("http://139.162.247.66:3000/products.json")
+        request.get("http://johnharnett.co.uk/products.json")
         .set('Accept', 'application/json')
         .end(function(err,resp){
           callback(null,resp.body);
@@ -35,7 +38,7 @@ local_products: function(callback){
         });
 },
 local_invoices: function(callback){
-        request.get("http://192.168.1.127:3000/collections/invoices")
+        request.get("http://192.168.1.127:3001/collections/invoices")
         .set('Accept', 'application/json')
         .end(function(err,resp){
           callback(null,resp.body);
@@ -73,10 +76,19 @@ local_invoices: function(callback){
                    });
          
          console.log(report_row);  
-         fs.appendFileSync(now_file_name ,report_row + '\n','utf-8',function(err){
+         if (sitc_product.sku.indexOf("LEN") == 0) {
+         fs.appendFileSync(len_file_name ,report_row + '\n','utf-8',function(err){
                  if (err){ fs.writeFileSync("err.file",err)}
 
          });
+         }
+         else{
+         fs.appendFileSync(tosh_file_name ,report_row + '\n','utf-8',function(err){
+                 if (err){ fs.writeFileSync("err.file",err)}
+
+         });
+
+         }
  });
                  
 });
