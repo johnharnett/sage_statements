@@ -13,14 +13,25 @@ var manufacturers = ["LEN","TOSH"]
 var len_file_name = "\\\\LOCATESTORE\\Gerry\\snc\\" + moment().format("YYYY_MM_DD__HH_mm") + "len_stock_news.csv";
 var tosh_file_name = "\\\\LOCATESTORE\\Gerry\\snc\\" + moment().format("YYYY_MM_DD__HH_mm") + "tosh_stock_news.csv";
 var top_line= "Product Code,FreeStock,Channel,"
-lastSixMonths().forEach(function(month){
+lastSixMonths().slice(0,4).forEach(function(month){
  top_line += month +",";
 })
+top_line += "QtyOnOrder," 
 
 fs.writeFileSync(len_file_name, top_line + "Action\n");
 fs.writeFileSync(tosh_file_name, top_line + "Action\n");
 
-
+function addQtyOnOrderToOutputRow(product_sku,report_row){
+         if (typeof product_sku != 'undefined'){
+          // console.log(product_sku.QtyInStock);
+         report_row += product_sku.QtyOnOrder + ","
+         }
+         else{
+           report_row += "product not available,";
+         }
+         return report_row;
+          
+}
 
 async.parallel( {
 stock_in_the_channel: function(callback){
@@ -70,10 +81,12 @@ local_invoices: function(callback){
            report_row += sitc_product.stock_in_the_channel + ",";
            var all_sales = sales_summary(results["local_invoices"],sitc_product.sku)
                    var last_sales = ""
-                   lastSixMonths().forEach(function(month){
+                   lastSixMonths().slice(0,4).forEach(function(month){
                                    report_row += all_sales[month] + ","
 
                    });
+         //quantity on order
+         report_row = addQtyOnOrderToOutputRow(product_sku,report_row);
          
          console.log(report_row);  
          if (sitc_product.sku.indexOf("LEN") == 0) {
