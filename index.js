@@ -12,7 +12,7 @@ var manufacturers = ["LEN","TOSH"]
 
 var len_file_name = "\\\\LOCATESTORE\\Gerry\\snc\\" + moment().format("YYYY_MM_DD__HH_mm") + "len_stock_news.csv";
 var tosh_file_name = "\\\\LOCATESTORE\\Gerry\\snc\\" + moment().format("YYYY_MM_DD__HH_mm") + "tosh_stock_news.csv";
-var top_line= "Product Code,FreeStock,Channel,"
+var top_line= "Product Code,FreeStock,Channel,Beta,Namb,Comp,"
 lastSixMonths().slice(0,4).forEach(function(month){
  top_line += month +",";
 })
@@ -79,6 +79,9 @@ local_invoices: function(callback){
            report_row += "not found in sage,";
          }
            report_row += sitc_product.stock_in_the_channel + ",";
+           report_row += sitc_product.stock_in_the_channel_from_external_b + ",";
+           report_row += sitc_product.stock_in_the_channel_from_external_n + ",";
+           report_row += sitc_product.stock_in_the_channel_from_competitors + ",";
            var all_sales = sales_summary(results["local_invoices"],sitc_product.sku)
                    var last_sales = ""
                    lastSixMonths().slice(0,4).forEach(function(month){
