@@ -8,10 +8,12 @@ var lastSixMonths = require("sales_summary").lastSixMonths;
 var fs = require("fs");
 var moment = require("moment");
 
-var manufacturers = ["LEN","TOSH"]
+var manufacturers = ["LEN","TOSH","DELL"]
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-var len_file_name = "\\\\LOCATESTORE\\Gerry\\snc\\" + moment().format("YYYY_MM_DD__HH_mm") + "len_stock_news.csv";
-var tosh_file_name = "\\\\LOCATESTORE\\Gerry\\snc\\" + moment().format("YYYY_MM_DD__HH_mm") + "tosh_stock_news.csv";
+var len_file_name = "\\\\LOCATESTORE\\Gerry\\snc\\" + moment().format("YYYY_MM_DD__HH_mm") + "_len_stock_news.csv";
+var tosh_file_name = "\\\\LOCATESTORE\\Gerry\\snc\\" + moment().format("YYYY_MM_DD__HH_mm") + "_tosh_stock_news.csv";
+var dell_file_name = "\\\\LOCATESTORE\\Gerry\\snc\\" + moment().format("YYYY_MM_DD__HH_mm") + "_dell_stock_news.csv";
 var top_line= "Product Code,FreeStock,Channel,Beta,Namb,Comp,"
 lastSixMonths().slice(0,4).forEach(function(month){
  top_line += month +",";
@@ -20,6 +22,7 @@ top_line += "QtyOnOrder,"
 
 fs.writeFileSync(len_file_name, top_line + "Action\n");
 fs.writeFileSync(tosh_file_name, top_line + "Action\n");
+fs.writeFileSync(dell_file_name, top_line + "Action\n");
 
 function addQtyOnOrderToOutputRow(product_sku,report_row){
          if (typeof product_sku != 'undefined'){
@@ -35,9 +38,13 @@ function addQtyOnOrderToOutputRow(product_sku,report_row){
 
 async.parallel( {
 stock_in_the_channel: function(callback){
-        request.get("http://johnharnett.co.uk/products.json")
+        request.get("https://johnharnett.co.uk/products.json")
         .set('Accept', 'application/json')
+        .set('X-Sitc', 'asdf;l;l')
         .end(function(err,resp){
+           if(err != null){ 
+            console.log(Object.keys(err));
+           }
           callback(null,resp.body);
         });
 },
@@ -92,17 +99,30 @@ local_invoices: function(callback){
          report_row = addQtyOnOrderToOutputRow(product_sku,report_row);
          
          console.log(report_row);  
-         if (sitc_product.sku.indexOf("LEN") == 0) {
+         switch(sitc_product.sku.slice(0,3)){
+                 case "LEN":
          fs.appendFileSync(len_file_name ,report_row + '\n','utf-8',function(err){
                  if (err){ fs.writeFileSync("err.file",err)}
 
          });
-         }
-         else{
+                break;
+                case "TOS":
+         
          fs.appendFileSync(tosh_file_name ,report_row + '\n','utf-8',function(err){
                  if (err){ fs.writeFileSync("err.file",err)}
 
          });
+                break;
+                case "DEL":
+         
+         fs.appendFileSync(dell_file_name ,report_row + '\n','utf-8',function(err){
+                 if (err){ fs.writeFileSync("err.file",err)}
+
+         });
+                break;
+                default:
+               throw "not found a place to put " + sitc_product.sku
+                  
 
          }
  });
