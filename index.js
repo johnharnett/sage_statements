@@ -8,12 +8,13 @@ var lastSixMonths = require("sales_summary").lastSixMonths;
 var fs = require("fs");
 var moment = require("moment");
 
-var manufacturers = ["LEN","TOSH","DELL"]
+var manufacturers = ["LEN","TOSH","DELL","HP"]
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 var len_file_name = "\\\\LOCATESTORE\\Gerry\\snc\\" + moment().format("YYYY_MM_DD__HH_mm") + "_len_stock_news.csv";
 var tosh_file_name = "\\\\LOCATESTORE\\Gerry\\snc\\" + moment().format("YYYY_MM_DD__HH_mm") + "_tosh_stock_news.csv";
 var dell_file_name = "\\\\LOCATESTORE\\Gerry\\snc\\" + moment().format("YYYY_MM_DD__HH_mm") + "_dell_stock_news.csv";
+var hp_file_name = "\\\\LOCATESTORE\\Gerry\\snc\\" + moment().format("YYYY_MM_DD__HH_mm") + "_hp_stock_news.csv";
 var top_line= "Product Code,FreeStock,Channel,Beta,Namb,Comp,"
 lastSixMonths().slice(0,4).forEach(function(month){
  top_line += month +",";
@@ -23,6 +24,7 @@ top_line += "QtyOnOrder,"
 fs.writeFileSync(len_file_name, top_line + "Action\n");
 fs.writeFileSync(tosh_file_name, top_line + "Action\n");
 fs.writeFileSync(dell_file_name, top_line + "Action\n");
+fs.writeFileSync(hp_file_name, top_line + "Action\n");
 
 function addQtyOnOrderToOutputRow(product_sku,report_row){
          if (typeof product_sku != 'undefined'){
@@ -99,21 +101,27 @@ local_invoices: function(callback){
          report_row = addQtyOnOrderToOutputRow(product_sku,report_row);
          
          console.log(report_row);  
-         switch(sitc_product.sku.slice(0,3)){
-                 case "LEN":
+         switch(sitc_product.sku.slice(0,2)){
+                 case "HP":
+         fs.appendFileSync(hp_file_name ,report_row + '\n','utf-8',function(err){
+                 if (err){ fs.writeFileSync("err.file",err)}
+
+         });
+                break;
+                 case "LE":
          fs.appendFileSync(len_file_name ,report_row + '\n','utf-8',function(err){
                  if (err){ fs.writeFileSync("err.file",err)}
 
          });
                 break;
-                case "TOS":
+                case "TO":
          
          fs.appendFileSync(tosh_file_name ,report_row + '\n','utf-8',function(err){
                  if (err){ fs.writeFileSync("err.file",err)}
 
          });
                 break;
-                case "DEL":
+                case "DE":
          
          fs.appendFileSync(dell_file_name ,report_row + '\n','utf-8',function(err){
                  if (err){ fs.writeFileSync("err.file",err)}
