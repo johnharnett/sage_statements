@@ -15,7 +15,7 @@ var len_file_name = "\\\\LOCATESTORE\\Gerry\\snc\\" + moment().format("YYYY_MM_D
 var tosh_file_name = "\\\\LOCATESTORE\\Gerry\\snc\\" + moment().format("YYYY_MM_DD__HH_mm") + "_tosh_stock_news.csv";
 var dell_file_name = "\\\\LOCATESTORE\\Gerry\\snc\\" + moment().format("YYYY_MM_DD__HH_mm") + "_dell_stock_news.csv";
 var hp_file_name = "\\\\LOCATESTORE\\Gerry\\snc\\" + moment().format("YYYY_MM_DD__HH_mm") + "_hp_stock_news.csv";
-var top_line= "Product Code,FreeStock,Channel,Beta,Namb,Comp,"
+var top_line= "Product Code,FreeStock,Channel,days_left_s3,Beta,Namb,Comp,"
 lastSixMonths().slice(0,4).forEach(function(month){
  top_line += month +",";
 })
@@ -40,7 +40,7 @@ function addQtyOnOrderToOutputRow(product_sku,report_row){
 
 async.parallel( {
 stock_in_the_channel: function(callback){
-        request.get("https://johnharnett.co.uk/products.json")
+        request.get("https://locate.johnharnett.co.uk/products.json")
         .set('Accept', 'application/json')
         .set('X-Sitc', 'asdf;l;l')
         .end(function(err,resp){
@@ -88,6 +88,7 @@ local_invoices: function(callback){
            report_row += "not found in sage,";
          }
            report_row += sitc_product.stock_in_the_channel + ",";
+           report_row += sitc_product.stock_days_in_the_channel_based_on_3 + ",";
            report_row += sitc_product.stock_in_the_channel_from_external_b + ",";
            report_row += sitc_product.stock_in_the_channel_from_external_n + ",";
            report_row += sitc_product.stock_in_the_channel_from_competitors + ",";
