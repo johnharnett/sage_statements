@@ -7,6 +7,23 @@ var sales_summary = require("sales_summary").sales_summary;
 var lastSixMonths = require("sales_summary").lastSixMonths;
 var fs = require("fs");
 var moment = require("moment");
+var Slack = require('slack-node');
+var webhookUri = "https://hooks.slack.com/services/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"
+
+var slack = new Slack();
+slack.setWebhook(webhookUri);
+
+function sendToSlack(text){
+
+slack.webhook({
+  channel: "#test",
+  username: "stock_news_bot",
+  text: text
+}, function(err, response) {
+  console.log(response);
+});
+
+}
 
 var manufacturers = ["LEN","TOSH","DELL","HP"]
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
@@ -44,17 +61,26 @@ stock_in_the_channel: function(callback){
         .set('Accept', 'application/json')
         .set('X-Sitc', 'asdf;l;l')
         .end(function(err,resp){
-           if(err != null){ 
+           if (err){
+            sendToSlack("error retrieving stock_in_the_channel data from   johnharnett.co.uk"); 
             console.log(Object.keys(err));
            }
-          callback(null,resp.body);
+           else{ 
+             callback(null,resp.body);
+           }
         });
 },
 local_products: function(callback){
         request.get("http://192.168.1.127:3000/collections/cate")
         .set('Accept', 'application/json')
         .end(function(err,resp){
-          callback(null,resp.body);
+           if (err){
+            sendToSlack("error retrieving skus from local server "); 
+            console.log(Object.keys(err));
+           }
+           else{ 
+             callback(null,resp.body);
+           }
         });
 },
 local_invoices: function(callback){
@@ -67,6 +93,13 @@ local_invoices: function(callback){
 }
 
 },function(err,results){
+        if (err){
+
+                sendToSlack("err in getting stock news => " + err);
+
+                return
+        }
+        sendToSlack("writing stock in the channel data for " + results["stock_in_the_channel"].length + " skus")
   var sorted_stock_in_the_channel = _.sortBy(results["stock_in_the_channel"],function(sitc_product){return sitc_product.sku});
  _.each(sorted_stock_in_the_channel,function(sitc_product){
 
@@ -85,6 +118,7 @@ local_invoices: function(callback){
          }
          else{
                  console.log("product not in sage");
+                 sendToSlack(sitc_product.Sku + " not found in sage (whilst writing stock report)");
            report_row += "not found in sage,";
          }
            report_row += sitc_product.stock_in_the_channel + ",";
@@ -132,6 +166,9 @@ local_invoices: function(callback){
                 default:
                throw "not found a place to put " + sitc_product.sku
                   
+                       sendToSlack("not found a place to put " + sitc_product.sku);
+                  
+
 
          }
  });
