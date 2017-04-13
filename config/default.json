@@ -1,0 +1,7 @@
+{
+        "output":
+        {"dir": "./test_output/" },
+        "slack":
+        {"bot_name": "test_bot_from_my_pc","channel_name": "#test","webhookUri":  "https://hooks.slack.com/services/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"}
+        
+}
