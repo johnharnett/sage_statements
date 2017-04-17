@@ -27,8 +27,13 @@ var manufacturers = ["HP"]
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 var hp_file_name = config.output.dir + moment().format("YYYY_MM_DD__HH_mm") + "_hp_competitors.csv";
-var top_line= "Product Code,in sage?,stock in Channel(suppliers),stock in Channel (Competitors),(suppliers) days_left_s3,(suppliers) days_left_s4,Namb_days_left_s3,Namb_days_left_s4,Comp_days_left_s3,Comp_days_left_s4,"
-fs.writeFileSync(hp_file_name, top_line + "\n");
+var top_line= "Product Code,in sage?,stock in Channel(suppliers),stock in Channel (Competitors),(suppliers) days_left_s3,(suppliers) days_left_s4,Namb_days_left_s3,     Namb_days_left_s4,Comp_days_left_s3,Comp_days_left_s4,"
+var top_line = "Code, Loc Stk ,Dst,Comp,Namb,Dst days_left_s3,Dst days_left_s4,Namb_days_left_s3,Namb_days_left_s4,Comp_days_left_s3,Comp_days_left_s"
+
+fs.appendFileSync(hp_file_name ,top_line + '\n','utf-8',function(err){
+                 if (err){ fs.writeFileSync("err.file",err)}
+         });
+
 
 async.parallel( {
 stock_in_the_channel: function(callback){
@@ -80,15 +85,14 @@ local_products: function(callback){
          if (typeof product_sku == 'undefined'){
                  console.log("product not in sage");
 //                 sendToSlack(sitc_product.Sku + " not found in sage (whilst writing stock report)");
-           report_row += "No,";
+           report_row += "not found in sage,";
          }
          else{
-           
-           report_row += ",";
-
+           report_row += product_sku.QtyInStock + ",";
          }
            report_row += sitc_product.stock_in_the_channel + ",";
            report_row += sitc_product.stock_in_the_channel_from_competitors + ",";
+           report_row += sitc_product.stock_in_the_channel_from_external_n + ",";
            report_row += sitc_product.stock_days_in_the_channel_based_on_3 + ",";
            report_row += sitc_product.stock_days_in_the_channel_based_on_4 + ",";
            report_row += sitc_product.n_stock_days_in_the_channel_based_on_3 + ",";
