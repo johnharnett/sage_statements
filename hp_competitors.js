@@ -98,7 +98,7 @@ local_products: function(callback){
            report_row += sitc_product.n_stock_days_in_the_channel_based_on_3 + ",";
            report_row += sitc_product.n_stock_days_in_the_channel_based_on_4 + ",";
            report_row += sitc_product.competitor_stock_days_in_the_channel_based_on_3 + ",";
-           report_row += sitc_product.competitor_stock_days_in_the_channel_based_on_4 + ",";
+           report_row += sitc_product.competitor_stock_days_in_the_channel_based_on_4 ;
          
          console.log(report_row);  
          switch(sitc_product.sku.slice(0,2)){
