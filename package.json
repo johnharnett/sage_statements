@@ -11,11 +11,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "async": "^2.0.1",
-    "config": "^1.25.1",
-    "moment": "^2.14.1",
-    "slack-node": "^0.1.8",
-    "superagent": "^2.2.0",
-    "underscore": "^1.8.3"
+    "slack-node": "^0.1.8"
   }
 }
