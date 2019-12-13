@@ -37,7 +37,7 @@ slack.webhook({
 
 }
 
-var   rs =   fs.createReadStream('d:\\product_enquirer_input\\sage_50_export_statements.xml')
+var   rs =   fs.createReadStream('c:\\product_enquirer_input\\sage_50_export_statements.xml')
 
 rs.on('error',function() {
         sendToSlack("error reading sage statements")
